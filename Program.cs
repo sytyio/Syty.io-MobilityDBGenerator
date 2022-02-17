@@ -10,6 +10,9 @@
             Console.WriteLine("Loading geography definitions...");
             var geographyManager = new GeographyManager();
             await geographyManager.Load();
+            Console.WriteLine("Loading work-home movement matrix...");
+            var matrixManager = new MatrixManager();
+            await matrixManager.Load();
             Console.WriteLine("Done.");
         }
     }

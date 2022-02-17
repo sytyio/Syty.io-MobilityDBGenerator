@@ -5,6 +5,7 @@ using NetTopologySuite.IO;
 
 namespace Generator
 {
+
     class GeographyManager
     {
         Dictionary<string, Geometry> sectors = new Dictionary<string, Geometry>();
@@ -28,7 +29,6 @@ namespace Generator
             {
                 var geometry = shapeFileDataReader.Geometry;
                 var key = shapeFileDataReader.GetValue(1).ToString();
-                Console.WriteLine(key);
                 sectors.Add("s"+key, geometry);
             }
 
