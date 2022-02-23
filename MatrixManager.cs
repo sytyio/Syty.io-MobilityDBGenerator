@@ -5,6 +5,7 @@ namespace Generator
     class MatrixRecord
     {
         public string HomeSector;
+
         public string WorkSector;
 
         public int Count;
@@ -15,6 +16,7 @@ namespace Generator
 
     class MatrixManager
     {
+        Random rand = new Random();
         MatrixRecord[] recordsHeap;
         public async Task Load()
         {
@@ -30,13 +32,18 @@ namespace Generator
                 {
                     while (reader.Read())
                     {
-                        var record = new MatrixRecord()
+                        var homeRaw = reader.GetString(0);
+                        var workRaw = reader.GetString(1);
+                        if (!homeRaw.Contains("ZZZ") && !workRaw.Contains("ZZZ") && !homeRaw.Contains("FOR") && !workRaw.Contains("FOR"))
                         {
-                            HomeSector = reader.GetString(0).Replace("BE100_","s"),
-                            WorkSector = reader.GetString(1).Replace("BE100_","s"),
-                            Count = (int)reader.GetFloat(2)
-                        };
-                        records.Add(record);
+                            var record = new MatrixRecord()
+                            {
+                                HomeSector = "s" + homeRaw.Split("_").Last(),
+                                WorkSector = "s" + workRaw.Split("_").Last(),
+                                Count = (int)reader.GetFloat(2)
+                            };
+                            records.Add(record);
+                        }
                     }
                 }
             }
@@ -67,6 +74,29 @@ namespace Generator
                 CreateHeap(right);
                 recordsHeap[idx].Total += recordsHeap[right].Total;
             }
+        }
+
+        private MatrixRecord GetPersonaAtIndex(int index, int pos)
+        {
+            var left = 2 * (pos+1) - 1;
+            var right = 2 * (pos+1);
+
+            if(index < recordsHeap[pos].TotalBefore)
+            {
+                return GetPersonaAtIndex(index, left);
+            }
+            else if(index < recordsHeap[pos].TotalBefore + recordsHeap[pos].Count)
+            {
+                return recordsHeap[pos];
+            }
+            return GetPersonaAtIndex(index - (recordsHeap[pos].TotalBefore + recordsHeap[pos].Count), right);
+        }
+
+        public Persona GetRandomPersona()
+        {
+            var index = rand.Next(recordsHeap[0].Total);
+            var result =  GetPersonaAtIndex(index,0);
+            return new Persona() { WorkSector = result.WorkSector, HomeSector = result.HomeSector };
         }
     }
 }
